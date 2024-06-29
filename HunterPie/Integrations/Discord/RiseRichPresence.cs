@@ -50,7 +50,7 @@ internal sealed class RiseRichPresence : RichPresence
                     avatar_url = " https://cdn.hunterpie.com/Static/avatar.png"
                 };
 
-                HttpClient client = new HttpClientBuilder()
+                HttpClient client = new HttpClientBuilder("")
                     .Post(webhookUrl)
                     .WithJson(payload)
                     .WithTimeout(TimeSpan.FromSeconds(5))
