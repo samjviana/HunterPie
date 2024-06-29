@@ -116,6 +116,8 @@ public sealed class MHRPlayer : CommonPlayer
         }
     }
 
+    public string LobbyId { get; private set; } = string.Empty;
+
     public override bool InHuntingZone => _stageData.IsHuntingZone() || StageId == 5;
 
     public override IParty Party => _party;
@@ -495,6 +497,17 @@ public sealed class MHRPlayer : CommonPlayer
         }
     }
 
+    private void ShareLobbyId()
+    {
+        long lobbyIdPtr = Process.Memory.ReadPtr(
+            AddressMap.GetAbsolute("SESSION_MANAGER_ADDRESS"),
+            AddressMap.Get<int[]>("SESSION_LOBBY_ID_OFFSETS")
+        );
+        string lobbyId = Process.Memory.Read(lobbyIdPtr + 0x14, 24, Encoding.Unicode);
+
+        LobbyId = lobbyId;
+    }
+
     [ScannableMethod]
     private void GetSessionPlayers()
     {
@@ -507,11 +520,11 @@ public sealed class MHRPlayer : CommonPlayer
             return;
 
         // Only scan party members when the player is not in the quest end screen
-        if (!questState.IsInQuest() && !StageId.IsTrainingRoom())
-        {
-            _party.Clear();
-            return;
-        }
+        // if (!questState.IsInQuest() && !StageId.IsTrainingRoom())
+        // {
+        //     _party.Clear();
+        //     return;
+        // }
 
         long playersArrayPtr = Process.Memory.Deref<long>(
             AddressMap.GetAbsolute("CHARACTER_ADDRESS"),
@@ -544,6 +557,17 @@ public sealed class MHRPlayer : CommonPlayer
         }
 
         bool isOnlineSession = sessionPlayersArray[..4].Any(player => player.IsValid);
+        if (isOnlineSession)
+        {
+            ShareLobbyId();
+        }
+
+        // Only scan party members when the player is not in the quest end screen
+        if (!questState.IsInQuest() && !StageId.IsTrainingRoom())
+        {
+            _party.Clear();
+            return;
+        }
 
         long[] playerWeaponsPtr = Process.Memory.Read<long>(playersWeaponPtr + 0x20, 6);
         PartyMemberMetadata[] servantsData = GetServantsData();

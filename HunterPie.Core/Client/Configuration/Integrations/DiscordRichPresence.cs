@@ -18,4 +18,11 @@ public class DiscordRichPresence : ISettings
 
     [ConfigurationProperty("DRPC_ENABLE_SHOW_MONSTER_HEALTH", group: CommonConfigurationGroups.CUSTOMIZATIONS)]
     public Observable<bool> ShowMonsterHealth { get; set; } = true;
+
+    [ConfigurationProperty("ENABLE_LOBBY_ID_SHARING", group: CommonConfigurationGroups.GENERAL, availableGames: GameProcess.MonsterHunterRise)]
+    [ConfigurationCondition]
+    public Observable<bool> EnableLobbyIdSharing { get; set; } = true;
+
+    [ConfigurationProperty("DISCORD_WEBHOOK_URL", group: CommonConfigurationGroups.CUSTOMIZATIONS, availableGames: GameProcess.MonsterHunterRise)]
+    public Observable<string> LobbyIdWebHook { get; set; } = "";
 }

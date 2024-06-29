@@ -5,11 +5,15 @@ using HunterPie.Core.Client.Configuration.Integrations;
 using HunterPie.Core.Client.Localization;
 using HunterPie.Core.Game.Entity.Enemy;
 using HunterPie.Core.Game.Enums;
+using HunterPie.Core.Networking.Http;
 using HunterPie.Domain.Utils;
 using HunterPie.Integrations.Datasources.MonsterHunterRise;
 using HunterPie.Integrations.Datasources.MonsterHunterRise.Entity.Game;
+using HunterPie.Integrations.Datasources.MonsterHunterRise.Entity.Player;
+using HunterPie.UI.Overlay.Widgets.Damage.Helpers;
 using System;
 using System.Linq;
+using System.Net;
 
 namespace HunterPie.Integrations.Discord;
 
@@ -18,6 +22,7 @@ internal sealed class RiseRichPresence : RichPresence
     private const string RISE_APP_ID = "932399108017242182";
 
     private readonly MHRGame game;
+    private string _lastLobbyId = "";
     protected override DiscordRichPresence Settings => ClientConfig.Config.Rise.RichPresence;
 
     public RiseRichPresence(MHRContext context) : base(RISE_APP_ID, context.Game)
@@ -28,6 +33,36 @@ internal sealed class RiseRichPresence : RichPresence
     protected override void HandlePresence()
     {
         string description = null;
+        
+        if (Settings.EnableLobbyIdSharing)
+        {
+            string lobbyId = ((MHRPlayer)game.Player).LobbyId;
+            string webhookUrl = Settings.LobbyIdWebHook.Value;
+            if (lobbyId != _lastLobbyId && lobbyId.Length > 0)
+            {
+                string message = $"Lobby ID: {lobbyId}";
+
+                // TODO: This could use a better payload structure, maybe to use the `CDN` or a more elaborate message
+                var payload = new
+                {
+                    content = message,
+                    username = "HunterPie",
+                    avatar_url = " https://cdn.hunterpie.com/Static/avatar.png"
+                };
+
+                HttpClient client = new HttpClientBuilder()
+                    .Post(webhookUrl)
+                    .WithJson(payload)
+                    .WithTimeout(TimeSpan.FromSeconds(5))
+                    .Build();
+                HttpClientResponse response = client.Request();
+
+                if (response.StatusCode == HttpStatusCode.NoContent)
+                {
+                    _lastLobbyId = lobbyId;
+                }
+            }
+        }
 
         description = game.Player.StageId switch
         {
