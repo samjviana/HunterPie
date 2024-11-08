@@ -27,7 +27,6 @@
         <Ailment Id="22" String="AILMENT_CLAW"/>
         <Ailment Id="23" String="AILMENT_CLAWFLINCH"/>
         <Ailment Id="24" String="AILMENT_BANISHINGBALL"/>
-        <Ailment Id="999" String="AILMENT_ENRAGE"/>
     </Ailments>
     <Monsters>
         <Monster Id="0" Capture="25">
@@ -1072,7 +1071,7 @@
                 <Part Id="0" String="PART_HORNS" IsSeverable="True"/>
                 <Part Id="1" String="PART_TAIL" IsSeverable="True"/>
                 <Part Id="3" String="PART_EXPLOSION_WEAKENING" IsSeverable="True"/>
-                <Part Id="3" String="PART_HEAD" TenderizeIds="0,5"/>
+                <Part Id="2" String="PART_HEAD" TenderizeIds="0,5"/>
                 <Part Id="4" String="PART_CHEST"/>
                 <Part Id="5" String="PART_WINGS" TenderizeIds="2,7"/>
                 <Part Id="6" String="PART_ARMS" TenderizeIds="1,6"/>
